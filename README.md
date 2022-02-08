@@ -65,9 +65,6 @@ Examples:
 
 
 ## Demo
-### Get-SQLQuery
-![image](https://user-images.githubusercontent.com/47215311/153053993-a606fc4e-82af-4e4a-8b97-f36719a06e25.png)
-
 ### Get-UserPrivs
 ![image](https://user-images.githubusercontent.com/47215311/153054239-3937a19a-5514-42fb-980c-4e1676f085ca.png)
 
