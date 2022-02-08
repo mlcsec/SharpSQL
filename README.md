@@ -1,8 +1,8 @@
 # SharpSQL
 
-Simple port of PowerUpSQL, any input is appreciated.
+Simple port of PowerUpSQL
 - Methods and options are case-insensitive e.g. `Get-SQLInstanceDomain`/`get-sqlinstancedomain` or `-Instance`/`-instance`
-- `-Instance` is required for all commands except `Get-SQLInstanceDomain`
+- `-Instance` required for all methods except `Get-SQLInstanceDomain`
 
 Thanks to [tevora-threat](https://github.com/tevora-threat) for getting the ball rolling.
 
