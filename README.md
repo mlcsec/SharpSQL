@@ -8,8 +8,6 @@ Thanks to [tevora-threat](https://github.com/tevora-threat) for getting the ball
 
 ## Usage
 ```
-beacon> execute-assembly C:\Tools\SharpSQL.exe -help
-
 SharpSQL by @mlcsec
 
 Usage:
