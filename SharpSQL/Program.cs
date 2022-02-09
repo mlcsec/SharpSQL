@@ -53,7 +53,7 @@ Methods:
     Enable-LinkedCmdshell      - Enable xp_cmdshell on linked server (-Instance and -LinkedInstance required)
     Invoke-OSCmd               - Execute system command via_xp_cmdshell on instance (-Instance required)
     Invoke-LinkedOSCmd         - Executes system command via xp_cmdshell on linked server (-Instance and -LinkedInstance required)
-    Ivnoke-ExternalScript      - Invoke external python script command execution (-Instance required)
+    Invoke-ExternalScript      - Invoke external python script command execution (-Instance required)
     Invoke-OLEObject           - Invoke OLE wscript command execution (-Instance required)
     Invoke-UserImpersonation   - Impersonate user (-Instance and -User required)
 
