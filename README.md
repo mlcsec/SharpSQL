@@ -74,9 +74,6 @@ Examples:
 ### Get-UserPrivs
 ![image](https://user-images.githubusercontent.com/47215311/153054239-3937a19a-5514-42fb-980c-4e1676f085ca.png)
 
-### Get-Sysadmins
-![image](https://user-images.githubusercontent.com/47215311/153182231-3f788a98-2f81-4cc3-9b7c-684f96a0a9f9.png)
-
 ### Invoke-OSCmd
 ![image](https://user-images.githubusercontent.com/47215311/153182593-e40747ff-b9f1-4ed4-a634-556f37e617ea.png)
 
