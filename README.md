@@ -65,11 +65,21 @@ Examples:
 
 
 ## Demo
+### Get-GroupMembership
+![image](https://user-images.githubusercontent.com/47215311/153180706-78e2a53c-79fb-4db0-ba03-cda16d476966.png)
+
+### Get-SQLquery
+![image](https://user-images.githubusercontent.com/47215311/153181678-6d61bb45-ff9b-4451-93ff-9497ab875bc5.png)
+
 ### Get-UserPrivs
 ![image](https://user-images.githubusercontent.com/47215311/153054239-3937a19a-5514-42fb-980c-4e1676f085ca.png)
 
+### Get-Sysadmins
+![image](https://user-images.githubusercontent.com/47215311/153182231-3f788a98-2f81-4cc3-9b7c-684f96a0a9f9.png)
+
 ### Invoke-OSCmd
-![image](https://user-images.githubusercontent.com/47215311/153054117-3b149563-2ed4-4123-af70-8f17599e4220.png)
+![image](https://user-images.githubusercontent.com/47215311/153182593-e40747ff-b9f1-4ed4-a634-556f37e617ea.png)
+
 
 
 
