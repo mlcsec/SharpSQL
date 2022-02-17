@@ -92,4 +92,5 @@ Examples:
     - `Invoke-CustomAsm`
     - `Add-User`
     - `Add-LinkedUser`
+    - `Enable-RPC` - on instance and linkedinstance, allows for EXEC... AT...
     - double link crawl functionality, raw queries should work as is
