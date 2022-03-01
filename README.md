@@ -82,8 +82,6 @@ Examples:
 
 - Test:
     - `Invoke-ExternalScript` - not tested in lab
-    - `Invoke-OLEObject` - not tested in lab
-    - `Invoke-UserImpersontation` - not tested in lab
 
 - Fix:
     - `Enable-LinkedCmdshell` - rpc or metadata error currently, `Check-LinkedCmdshell` and `Invoke-LinkedOSCmd` work fine
